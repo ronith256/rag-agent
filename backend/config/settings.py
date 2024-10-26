@@ -18,3 +18,4 @@ class Settings:
             return json.load(f)
 
 settings = Settings()
+print(settings.MONGO_URI)

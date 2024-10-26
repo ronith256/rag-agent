@@ -47,7 +47,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     { icon: <Users className="w-5 h-5 text-gray-400" />, label: 'Users', href: '/users' },
   ];
 
-  const sidebarItems = user?.email === process.env.ADMIN_EMAIL 
+  const sidebarItems = user?.email === import.meta.env.VITE_ADMIN_EMAIL 
     ? [...baseItems, ...adminItems]
     : baseItems;
 

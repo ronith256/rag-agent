@@ -3,8 +3,6 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
-    ports:
-      - "27017:27017"
     volumes:
       - mongodb_data:/data/db
     networks:
@@ -29,12 +27,12 @@ services:
       - app_network
 
   frontend:
-    env_file: .frontend.env
+    env_file: .env
     build:
       context: .
       dockerfile: frontend.Dockerfile
     ports:
-      - "3000:3000"
+      - "3349:3349"
     environment:
       - VITE_API_URL=http://backend:5984
     depends_on:

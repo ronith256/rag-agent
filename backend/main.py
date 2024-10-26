@@ -3,8 +3,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes import agents, chat, documents, metrics, users, evaluation
 from config.firebase import initialize_firebase
+import os
+from dotenv import load_dotenv
 
 # Initialize Firebase Admin SDK
+load_dotenv('.backend.env')
 initialize_firebase()
 
 app = FastAPI(
@@ -14,9 +17,12 @@ app = FastAPI(
     docs_url="/",
 )
 
+url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+print(f'link: {url}')
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173", "https://ragui.duckgpt.tech", "http://172.18.0.4:3000/"],
+    allow_origins=[url, "http://localhost:5173", "https://ragui.duckgpt.tech", "http://172.18.0.4:3000/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,4 +37,6 @@ app.include_router(evaluation.router, prefix="/api/agents", tags=["evaluation"])
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5984)
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = os.environ.get('PORT', 5984)
+    uvicorn.run(app, host="0.0.0.0", port=port)

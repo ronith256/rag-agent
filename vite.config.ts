@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: Number(process.env.PORT),
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL,

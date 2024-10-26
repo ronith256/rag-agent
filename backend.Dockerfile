@@ -11,6 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ ./backend
+COPY backend/ .backend.env
 
 ENV PYTHONPATH=/app/backend
 ENV MONGO_URI=mongodb://mongodb:27017

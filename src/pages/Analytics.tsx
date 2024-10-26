@@ -50,11 +50,12 @@ const Analytics = () => {
 
   const { user } = useAuth();
   const userId = user?.uid;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await axios.get(`/api/agents/user/${userId}`);
+        const response = await axios.get(`${baseURL}/api/agents/user/${userId}`);
         setAgents(response.data);
         if (response.data.length > 0) {
           setSelectedAgent(response.data[0].id);
@@ -72,7 +73,7 @@ const Analytics = () => {
       
       setIsLoading(true);
       try {
-        const response = await axios.get(`/api/metrics/agent/${selectedAgent}`, {
+        const response = await axios.get(`${baseURL}/api/metrics/agent/${selectedAgent}`, {
           params: {
             start_date: dateRange.start,
             end_date: dateRange.end,

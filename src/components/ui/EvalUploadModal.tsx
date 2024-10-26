@@ -21,6 +21,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
   const [evaluationFile, setEvaluationFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -55,7 +56,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
 
     try {
       await axios.post(
-        `/api/agents/${selectedAgent}/evaluate`,
+        `${baseURL}/api/agents/${selectedAgent}/evaluate`,
         formData,
         {
           headers: {

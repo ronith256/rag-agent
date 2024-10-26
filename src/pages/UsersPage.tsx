@@ -126,7 +126,7 @@ const UsersPage = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user?.email === process.env.ADMIN_EMAIL) {
+    if (user?.email === import.meta.env.VITE_ADMIN_EMAIL) {
       fetchUsers();
     }
   }, [user]);
@@ -137,10 +137,12 @@ const UsersPage = () => {
     }
   }, [selectedUser]);
 
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
+
   const fetchUsers = async () => {
     try {
       // This would need to be implemented in your Firebase backend
-      const response = await axios.get('/api/users');
+      const response = await axios.get(`${baseURL}/api/users`);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -149,7 +151,7 @@ const UsersPage = () => {
 
   const fetchUserAgents = async (userId: string) => {
     try {
-      const response = await axios.get(`/api/agents/user/${userId}`);
+      const response = await axios.get(`${baseURL}/api/agents/user/${userId}`);
       setUserAgents(response.data);
     } catch (error) {
       console.error('Error fetching user agents:', error);
@@ -163,7 +165,7 @@ const UsersPage = () => {
       // Create the same agent for each selected user
       await Promise.all(
         selectedEmails.map(async (email) => {
-          const response = await axios.post('/api/agents', {
+          const response = await axios.post(`${baseURL}/api/agents`, {
             user_id: email,
             config: selectedAgent.config
           });
@@ -176,7 +178,7 @@ const UsersPage = () => {
     }
   };
 
-  if (user?.email !== process.env.ADMIN_EMAIL) {
+  if (user?.email !== import.meta.env.VITE_ADMIN_EMAIL) {
     return (
       <div className="p-8">
         <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>

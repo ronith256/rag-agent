@@ -32,6 +32,7 @@ const AgentsPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const userId = user?.uid;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
   useEffect(() => {
     fetchAgents();
@@ -40,7 +41,7 @@ const AgentsPage = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await axios.get(`/api/agents/user/${userId}`);
+      const response = await axios.get(`${baseURL}/api/agents/user/${userId}`);
       setAgents(response.data);
     } catch (error) {
       console.error('Error fetching agents:', error);
@@ -49,7 +50,7 @@ const AgentsPage = () => {
 
   const fetchModels = async () => {
     try {
-      const response = await axios.get('/api/agents/models');
+      const response = await axios.get(`${baseURL}/api/agents/models`);
       setModels(response.data);
     } catch (error) {
       console.error('Error fetching models:', error);
@@ -84,7 +85,7 @@ const AgentsPage = () => {
     });
 
     try {
-      await axios.post(`/api/agents/${selectedAgent.id}/documents/bulk`, formData, {
+      await axios.post(`${baseURL}/api/agents/${selectedAgent.id}/documents/bulk`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -99,7 +100,7 @@ const AgentsPage = () => {
     if (!selectedAgent) return;
   
     try {
-      await axios.patch(`/api/agents/${selectedAgent.id}`, {
+      await axios.patch(`${baseURL}/api/agents/${selectedAgent.id}`, {
         user_id: userId,
         config: updatedConfig
       });
@@ -123,7 +124,7 @@ const AgentsPage = () => {
     setInputMessage('');
 
     try {
-      const response = await axios.post(`/api/agents/${selectedAgent.id}/chat`, {
+      const response = await axios.post(`${baseURL}/api/agents/${selectedAgent.id}/chat`, {
         agent_id: selectedAgent.id,
         messages: [...messages, newMessage]
       });
@@ -150,7 +151,7 @@ const AgentsPage = () => {
 
   const ApiPopup = () => {
     const curlRequest = `curl -X POST \\
-  'http://your-api-domain/api/agents/${selectedAgent?.id}/chat' \\
+  http://${baseURL}/api/agents/${selectedAgent?.id}/chat' \\
   -H 'Content-Type: application/json' \\
   -d '{
     "agent_id": "${selectedAgent?.id}",

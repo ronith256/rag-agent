@@ -15,7 +15,7 @@ const EvaluationsPage = () => {
   const [filter, setFilter] = useState<FilterStatus>('all');
   const { user } = useAuth();
   const userId = user?.uid;
-
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
   useEffect(() => {
     if (userId) {
       fetchAgents();
@@ -39,7 +39,7 @@ const EvaluationsPage = () => {
 
       for (const evaluation of processingEvaluations) {
         try {
-          const response = await axios.get<EvaluationJob>(`/api/evaluation-jobs/${evaluation.job_id}`);
+          const response = await axios.get<EvaluationJob>(`${baseURL}/api/evaluation-jobs/${evaluation.job_id}`);
           if (response.data.status !== 'processing') {
             await fetchEvaluations(selectedAgent);
           }
@@ -55,14 +55,14 @@ const EvaluationsPage = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await axios.get<Agent[]>(`/api/agents/user/${userId}`);
+      const response = await axios.get<Agent[]>(`${baseURL}/api/agents/user/${userId}`);
       const fetchedAgents = response.data;
 
       // Fetch evaluations for each agent to determine status
       const agentsWithStatus = await Promise.all(
         fetchedAgents.map(async (agent) => {
           try {
-            const evalResponse = await axios.get<Evaluation[]>(`/api/agents/${agent.id}/evaluations`);
+            const evalResponse = await axios.get<Evaluation[]>(`${baseURL}/api/agents/${agent.id}/evaluations`);
             const latestEval = evalResponse.data[0];
             const isActive = latestEval && 
               new Date(latestEval.timestamp) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -89,7 +89,7 @@ const EvaluationsPage = () => {
 
   const fetchEvaluations = async (agentId: string) => {
     try {
-      const response = await axios.get<Evaluation[]>(`/api/agents/${agentId}/evaluations`);
+      const response = await axios.get<Evaluation[]>(`${baseURL}/api/agents/${agentId}/evaluations`);
       setEvaluations(response.data);
     } catch (error) {
       console.error('Error fetching evaluations:', error);

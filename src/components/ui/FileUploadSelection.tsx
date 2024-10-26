@@ -25,14 +25,14 @@ export const FileUploadSection: React.FC<FileUploadSectionProps> = ({
 }) => {
   const [uploadStatus, setUploadStatus] = useState<JobStatus | null>(null);
   const [uploadJobId, setUploadJobId] = useState<string | null>(null);
-
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     
     if (uploadJobId) {
       intervalId = setInterval(async () => {
         try {
-          const response = await axios.get(`/api/agents/jobs/${uploadJobId}`);
+          const response = await axios.get(`${baseURL}/api/agents/jobs/${uploadJobId}`);
           setUploadStatus(response.data);
           
           if (['completed', 'failed'].includes(response.data.status)) {
@@ -75,7 +75,7 @@ export const FileUploadSection: React.FC<FileUploadSectionProps> = ({
     });
 
     try {
-      const response = await axios.post(`/api/agents/${agentId}/documents/bulk`, formData, {
+      const response = await axios.post(`${baseURL}/api/agents/${agentId}/documents/bulk`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

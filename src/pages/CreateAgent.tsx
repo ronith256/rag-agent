@@ -18,11 +18,12 @@ const CreateAgent = () => {
   const [advancedConfig, setAdvancedConfig] = useState<AdvancedConfig>(defaultAdvancedConfig);
   const { user } = useAuth();
   const userId = user?.uid;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
 
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const response = await axios.get('/api/agents/models');
+        const response = await axios.get(`${baseURL}/api/agents/models`);
         setModels(response.data);
       } catch (error) {
         console.error('Error fetching models:', error);
@@ -86,7 +87,7 @@ const CreateAgent = () => {
         };
       }
 
-      const response = await axios.post<Agent>('/api/agents', {
+      const response = await axios.post<Agent>(`${baseURL}/api/agents`, {
         user_id: userId,
         config
       });

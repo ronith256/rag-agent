@@ -9,9 +9,8 @@ COPY . .
 
 RUN npm run build
 
-RUN npm install -g serve
+EXPOSE 3349
 
-EXPOSE 3000
-
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["npm", "run", "frontend"]
+# CMD ["serve", "-s", "dist", "-l", "3000"]
 # CMD ["npm", "run", "dev", "--", "--host"]
