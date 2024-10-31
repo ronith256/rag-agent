@@ -21,3 +21,5 @@ chromadb
 unstructured
 python-multipart
 aiofiles
+psycopg2
+debugpy

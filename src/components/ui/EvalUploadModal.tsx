@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Upload, Loader2 } from 'lucide-react';
-import type { EvalAgent } from '../../types/types';
+import type { Agent } from '../../types/types';
 
 interface UploadModalProps {
-  agents: EvalAgent[];
+  agents: Agent[];
   selectedAgent: string | null;
   onAgentSelect: (agentId: string) => void;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (jobId: string) => void;  // Updated this line to accept jobId
 }
 
 export const UploadModal: React.FC<UploadModalProps> = ({
@@ -55,7 +55,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
     formData.append('evaluation_set', evaluationFile);
 
     try {
-      await axios.post(
+      const response = await axios.post(
         `${baseURL}/api/agents/${selectedAgent}/evaluate`,
         formData,
         {
@@ -65,7 +65,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         }
       );
       
-      onSubmit();
+      onSubmit(response.data.job_id); // Pass the job_id to onSubmit
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.detail || 'Error submitting evaluation');

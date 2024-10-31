@@ -141,7 +141,6 @@ const UsersPage = () => {
 
   const fetchUsers = async () => {
     try {
-      // This would need to be implemented in your Firebase backend
       const response = await axios.get(`${baseURL}/api/users`);
       setUsers(response.data);
     } catch (error) {
@@ -160,16 +159,18 @@ const UsersPage = () => {
 
   const handleShareAgent = async (selectedEmails: string[]) => {
     if (!selectedAgent) return;
-
+  
     try {
-      // Create the same agent for each selected user
       await Promise.all(
         selectedEmails.map(async (email) => {
-          const response = await axios.post(`${baseURL}/api/agents`, {
-            user_id: email,
-            config: selectedAgent.config
-          });
-          return response.data;
+          const userToShare = users.find(user => user.email === email);
+          if (userToShare) {
+            const response = await axios.post(`${baseURL}/api/agents`, {
+              user_id: userToShare.uid,  // Use uid instead of email
+              config: selectedAgent.config
+            });
+            return response.data;
+          }
         })
       );
     } catch (error) {
@@ -177,6 +178,7 @@ const UsersPage = () => {
       throw error;
     }
   };
+  
 
   if (user?.email !== import.meta.env.VITE_ADMIN_EMAIL) {
     return (

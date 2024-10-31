@@ -32,7 +32,7 @@ async def chat(
         rag_config = RAGConfig(**agent["config"])
         embeddings_service = get_embeddings_service(rag_config.advancedEmbeddingsConfig)
         rag_service = get_rag_service(llm_service, embeddings_service)
-        rag_chain = rag_service.get_rag_chain(rag_config)
+        rag_chain = rag_service.get_chain(rag_config)
 
         chat_history = [
             HumanMessage(content=msg.content) if msg.role == "user" 
@@ -52,7 +52,10 @@ async def chat(
                     if is_first_token:
                         await metrics_queue.put(time.time())
                         is_first_token = False
-                    answer = chunk.get("answer", "")
+                    if isinstance(chunk, dict):
+                        answer = chunk.get("answer", "")
+                    else:
+                        answer = str(chunk)
                     yield answer
                 
                 await metrics_queue.put(None)

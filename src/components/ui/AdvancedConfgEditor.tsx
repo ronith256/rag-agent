@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { type Agent, type RAGConfig, type AdvancedConfig, defaultAdvancedConfig} from '@/types/types';
+import { ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
+import { type Agent, type RAGConfig, type AdvancedConfig, defaultAdvancedConfig } from '@/types/types';
+import axios from 'axios';
+import { useAuth } from '@/context/AuthContext';
 
 interface AgentConfigEditorProps {
   agent: Agent;
@@ -21,9 +23,59 @@ interface SectionConfig {
   fields: Field[];
 }
 
-const AgentConfigEditor = ({ agent, onUpdate, models }: AgentConfigEditorProps) => {
+interface DeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  agentName: string;
+  onConfirm: () => void;
+}
+
+const DeleteModal: React.FC<DeleteModalProps> = ({ isOpen, onClose, agentName, onConfirm }) => {
+  const [confirmText, setConfirmText] = useState('');
+  
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg w-full max-w-md p-6">
+        <h3 className="text-xl font-semibold mb-4">Delete Agent</h3>
+        <p className="text-gray-600 mb-4">
+          This action cannot be undone. Please type <span className="font-bold">{agentName}</span> to confirm.
+        </p>
+        <input
+          type="text"
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          placeholder="Type agent name to confirm"
+          className="w-full p-2 border rounded-md mb-4"
+        />
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={confirmText !== agentName}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            Delete Agent
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AgentConfigEditor = ({ agent, models, onUpdate }: AgentConfigEditorProps) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [config, setConfig] = useState<AdvancedConfig>(defaultAdvancedConfig);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { user } = useAuth();
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
+
 
   useEffect(() => {
     if (agent) {
@@ -71,6 +123,17 @@ const AgentConfigEditor = ({ agent, onUpdate, models }: AgentConfigEditorProps) 
         [field]: value
       }
     }));
+  };
+
+  const handleDeleteAgent = async () => {
+    try {
+      await axios.delete(`${baseURL}/api/agents/${agent.id}`, {
+        params: { user_id: user?.uid }
+      });
+      setShowDeleteModal(false)
+    } catch (error) {
+      console.error('Error deleting agent:', error);
+    }
   };
 
   const handleSave = () => {
@@ -257,16 +320,33 @@ const AgentConfigEditor = ({ agent, onUpdate, models }: AgentConfigEditorProps) 
         {showAdvanced && (
           <div className="mt-4 space-y-4">
             {sections.map((section) => renderSection(section))}
-            
-            <button
+          </div>
+        )}
+      </div>
+        <div className="mt-8">
+          <button
               onClick={handleSave}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
             >
               Update Agent
-            </button>
-          </div>
-        )}
-      </div>
+          </button>
+        </div>
+        <div className="mt-8">
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 flex items-center justify-center gap-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete Agent
+          </button>
+        </div>
+
+      <DeleteModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        agentName={agent.config.collection}
+        onConfirm={handleDeleteAgent}
+      />
     </div>
   );
 };

@@ -26,6 +26,7 @@ export const FileUploadSection: React.FC<FileUploadSectionProps> = ({
   const [uploadStatus, setUploadStatus] = useState<JobStatus | null>(null);
   const [uploadJobId, setUploadJobId] = useState<string | null>(null);
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL || '';
+
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     

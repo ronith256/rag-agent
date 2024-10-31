@@ -57,6 +57,29 @@ async def update_agent(
     updated_agent = await db.agents.find_one({"id": agent_id})
     return RAGAgent(**updated_agent)
 
+@router.delete("/{agent_id}")
+async def delete_agent(
+    agent_id: str,
+    user_id: str,
+    db: AsyncIOMotorDatabase = Depends(get_db)
+):
+    # Verify agent exists and belongs to user
+    existing_agent = await db.agents.find_one({"id": agent_id, "user_id": user_id})
+    if not existing_agent:
+        raise HTTPException(status_code=404, detail="Agent not found")
+    
+    # Delete the agent
+    result = await db.agents.delete_one({"id": agent_id, "user_id": user_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=400, detail="Delete failed")
+    
+    # Also delete related data
+    await db.metrics.delete_many({"agent_id": agent_id})
+    await db.evaluations.delete_many({"agent_id": agent_id})
+    
+    return {"message": "Agent deleted successfully"}
+
 @router.get("/models")
 async def get_models(db: AsyncIOMotorDatabase = Depends(get_db)):
     """Returns available models as a dictionary with model IDs as keys and display names as values"""

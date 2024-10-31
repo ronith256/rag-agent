@@ -8,7 +8,7 @@ class LLMService:
     def __init__(self, models_config: dict):
         self.models_config = models_config
 
-    def get_llm(self, config: RAGConfig):
+    def get_llm(self, config: RAGConfig) -> ChatOpenAI | ChatGoogleGenerativeAI:
         if config.advancedLLMConfig:
             print(config.advancedLLMConfig.api_key)
             return self._get_llm_advanced(config.advancedLLMConfig)
